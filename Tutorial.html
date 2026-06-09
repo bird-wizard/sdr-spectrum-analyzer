@@ -1,0 +1,82 @@
+<style>
+            body  { font-family: monospace; font-size: 11px;
+                    background: #1a1a2e; color: #e0e0e0; margin: 6px; }
+            h3    { color: #00d4ff; font-size: 12px; margin: 8px 0 4px 0; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+            th    { background: #2d2d4e; color: #00d4ff; padding: 3px 5px;
+                    text-align: left; font-size: 10px; }
+            td    { padding: 3px 5px; font-size: 10px;
+                    border-bottom: 1px solid #2a2a3e; }
+            .f    { color: #ffd700; font-weight: bold; }
+            .s    { color: #000000; }
+            .note { color: #000000; font-size: 9px; font-style: italic; margin: 2px 0; }
+        </style>
+
+        <h3>Frequency Bands</h3>
+        <p class="note">RTL-SDR V5 range: ~24 MHz - 1.7 GHz</p>
+        <table>
+          <tr><th>Band</th><th>Frequency</th><th>What to expect</th></tr>
+          <tr><td>FM Broadcast</td>   <td class="f">88-108 MHz</td>      <td class="s">Stereo audio, RDS metadata</td></tr>
+          <tr><td>Aircraft VHF</td>   <td class="f">108-137 MHz</td>     <td class="s">VOR beacons, ILS, ATC comms</td></tr>
+          <tr><td>NOAA Weather</td>   <td class="f">162.4-162.6 MHz</td> <td class="s">24/7 wx broadcasts, alerts</td></tr>
+          <tr><td>Maritime VHF</td>   <td class="f">156-174 MHz</td>     <td class="s">Ship comms, Ch16 distress</td></tr>
+          <tr><td>POCSAG Pagers</td>  <td class="f">~152 / 462 MHz</td>  <td class="s">One-way numeric/text pages</td></tr>
+          <tr><td>ISM 433</td>        <td class="f">433-434 MHz</td>     <td class="s">Key fobs, LoRa, temp sensors</td></tr>
+          <tr><td>Ham UHF</td>        <td class="f">420-450 MHz</td>     <td class="s">Amateur repeaters, APRS</td></tr>
+          <tr><td>LTE Low-band</td>   <td class="f">700-900 MHz</td>     <td class="s">4G cell downlink</td></tr>
+          <tr><td>ISM 915</td>        <td class="f">902-928 MHz</td>     <td class="s">LoRa, Zigbee, smart meters</td></tr>
+          <tr><td>ADS-B</td>          <td class="f">1090 MHz</td>        <td class="s">Aircraft position transponders</td></tr>
+          <tr><td>GPS L1</td>         <td class="f">1575 MHz</td>        <td class="s">Spread-spectrum — very weak</td></tr>
+        </table>
+
+        <h3>Common Signal Shapes</h3>
+        <table>
+          <tr><th>Type</th><th>What it looks like on the plot</th></tr>
+          <tr><td>FM (WFM)</td>   <td class="s">Wide ~200 kHz rounded peak</td></tr>
+          <tr><td>AM</td>         <td class="s">Narrow carrier + symmetric sidebands</td></tr>
+          <tr><td>LoRa</td>       <td class="s">Chirp bursts — sweeps up or down in waterfall</td></tr>
+          <tr><td>ADS-B</td>      <td class="s">Very short 1 µs pulses at exactly 1090 MHz</td></tr>
+          <tr><td>Noise floor</td><td class="s">~-80 to -100 dBm is normal and expected</td></tr>
+        </table>
+
+        <h3>Tuner Tips</h3>
+        <p class="note">DC spike at center is hardware leakage - not a real signal</p>
+        <p class="note">Gain too high -> noise floor rises, weak signals get buried</p>
+        <p class="note">2.4 MSPS = widest view but highest aliasing risk</p>
+        <p class="note">A strong nearby signal can desensitize the whole tuner</p>
+        <p class="note">Blackman-Harris window reduces spectral leakage between bins</p>
+
+        <h3>Twiddle Factor Guide</h3>
+        <table>
+          <tr><th>Slider</th><th>What it does</th><th>Tune it when...</th></tr>
+          <tr>
+            <td>Avg alpha</td>
+            <td class="s">Controls how quickly the spectrum curve reacts. Blends each new FFT frame into a running average — low alpha holds onto old frames longer.</td>
+            <td class="note">Raise it to see fast-moving signals clearly. Lower it to smooth out a noisy baseline.</td>
+          </tr>
+          <tr>
+            <td>Smooth sigma</td>
+            <td class="s">Applies a gaussian blur across FFT bins before peak detection. Wider sigma merges neighboring bins together.</td>
+            <td class="note">Raise it to kill narrow noise spikes. Lower it (or zero) if you need to resolve two close signals.</td>
+          </tr>
+          <tr>
+            <td>Prominence</td>
+            <td class="s">How far a peak must rise above its immediate surroundings to count. Prevents noise bumps from being flagged as signals.</td>
+            <td class="note">Raise it if you are seeing too many false peaks. Lower it if real but weak signals are being missed.</td>
+          </tr>
+          <tr>
+            <td>Min height</td>
+            <td class="s">Absolute dBm floor. Any peak below this level is ignored outright, regardless of how prominent it looks locally.</td>
+            <td class="note">Raise it (less negative) to ignore deep-noise detections. Lower it if you want to chase weak signals.</td>
+          </tr>
+          <tr>
+            <td>Peak BW</td>
+            <td class="s">Minimum width a peak must span in kHz to be counted. Narrow noise spikes are excluded; broad signals like FM pass through.</td>
+            <td class="note">Lower it to detect narrow signals like pagers or POCSAG. Keep it near 200 kHz for FM-only work.</td>
+          </tr>
+          <tr>
+            <td>Sweep dwell</td>
+            <td class="s">How many FFT frames to average at each sweep step before moving on. One frame is ~1.7 ms of data. More frames = cleaner average, slower pass.</td>
+            <td class="note">3 frames is fine for FM and other continuous signals. Raise to 10-20 for bursty signals like ADS-B or ISM devices that only transmit for microseconds.</td>
+          </tr>
+        </table>
