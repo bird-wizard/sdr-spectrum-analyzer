@@ -22,7 +22,7 @@ Built on a Nooelec RTL-SDR V5 dongle running Python on Ubuntu Linux.
 - A computer with a USB port
 
 **Software**
-- Ubuntu 22.04 or 24.04 (tested in VirtualBox on Windows 11)
+- Ubuntu 24.04
 - Python 3.11
 
 ---
